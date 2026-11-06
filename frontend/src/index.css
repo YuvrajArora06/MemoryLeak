@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
+/*
+  "Soft blocks" design system
+  Flat, solid pastel panels — no gradients, glows or glass.
+  Each tile colour has a matching ink colour for text on top of it.
+*/
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --color-paper: #fbfaf8;
+  --color-card: #ffffff;
+  --color-ink: #24212b;
+  --color-muted: #6b6676;
+  --color-line: #e9e5ee;
+
+  --color-c-sky: #dceaf7;
+  --color-c-sky-ink: #1c4a78;
+  --color-c-butter: #f8edc6;
+  --color-c-butter-ink: #6b5300;
+  --color-c-peach: #fbe1d3;
+  --color-c-peach-ink: #8c3b17;
+  --color-c-mint: #d7efe3;
+  --color-c-mint-ink: #1d5c3f;
+  --color-c-lilac: #e6e0f6;
+  --color-c-lilac-ink: #46348a;
+  --color-c-rose: #fad7da;
+  --color-c-rose-ink: #9b1c2c;
 }
 
-html, body, #root {
-  height: 100%;
+/* Light is the default; the top-bar switch sets data-theme="dark". */
+:root[data-theme="dark"] {
+  & {
+    color-scheme: dark;
+    --color-paper: #17151b;
+    --color-card: #211e26;
+    --color-ink: #eeebf2;
+    --color-muted: #a59fb0;
+    --color-line: #34303b;
+
+    --color-c-sky: #1f3247;
+    --color-c-sky-ink: #b9d6f2;
+    --color-c-butter: #3a3216;
+    --color-c-butter-ink: #f0dc94;
+    --color-c-peach: #45291c;
+    --color-c-peach-ink: #f6c3a6;
+    --color-c-mint: #1c382b;
+    --color-c-mint-ink: #a8dfc2;
+    --color-c-lilac: #2d2645;
+    --color-c-lilac-ink: #cbbff0;
+    --color-c-rose: #4a1f26;
+    --color-c-rose-ink: #f5b3bc;
+  }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
 body {
-  @apply bg-slate-950 text-slate-200 antialiased;
+  @apply bg-paper text-ink font-sans antialiased;
 }
 
-@keyframes step-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.animate-step-in {
-  animation: step-in 0.35s ease-out both;
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
-/* thin scrollbars for panels */
-.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-.scroll-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pop-in {
+  animation: pop-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in {
+    animation: none;
+  }
+}

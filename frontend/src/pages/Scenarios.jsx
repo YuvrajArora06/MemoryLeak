@@ -1,61 +1,48 @@
-import { Play, Lock } from 'lucide-react';
-import { Card, Badge, Button } from '../components/ui';
+import { Play } from 'lucide-react';
+import { Card, Button, Chip, PageTitle, TONE } from '../components/ui';
 import { CATEGORIES, ATTACKS, DEFAULT_CONFIG } from '../data/scenarios';
 
 export default function Scenarios({ onLaunch }) {
-  const payment = CATEGORIES.find((c) => c.id === 'payment');
   const planned = CATEGORIES.filter((c) => c.status !== 'active');
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-100">Scenario library</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Reusable adversarial test cases. Launch one to open it pre-configured in the lab.
-        </p>
-      </header>
+    <div className="grid gap-10">
+      <PageTitle title="Test library">
+        Ready-made tricks to throw at your agent. Pick one and it opens in the payment lab, already set up.
+      </PageTitle>
 
-      <section>
-        <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-slate-200">{payment.name}</h2>
-          <Badge tone="green">Available</Badge>
+      <section className="grid gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl font-extrabold">Spending without permission</h2>
+          <Chip tone="mint">Ready</Chip>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Object.values(ATTACKS).map((a) => (
-            <Card key={a.id} className="flex flex-col p-5">
-              <div className="text-sm font-semibold text-slate-100">{a.label}</div>
-              <p className="mt-1 flex-1 text-xs leading-relaxed text-slate-400">{a.description}</p>
+            <div key={a.id} className={`flex flex-col gap-2 rounded-[20px] p-5 ${TONE[a.tone]}`}>
+              <span className="text-xs font-bold uppercase tracking-[0.08em]">{a.tagline}</span>
+              <h3 className="text-xl font-extrabold text-ink">{a.label}</h3>
+              <p className="text-[15px] text-ink/85">{a.description}</p>
               {a.payload && (
-                <p className="mt-3 line-clamp-2 rounded bg-slate-950 px-2 py-1.5 font-mono text-[11px] text-amber-200/80 ring-1 ring-slate-800">
-                  {a.payload}
-                </p>
+                <blockquote className="rounded-xl bg-card/60 px-3 py-2 text-[13px] italic leading-snug text-ink/80">
+                  “{a.payload}”
+                </blockquote>
               )}
-              <Button
-                variant="secondary"
-                className="mt-4 w-full"
-                onClick={() => onLaunch({ ...DEFAULT_CONFIG, attack: a.id })}
-              >
-                <Play size={14} /> Launch
+              <Button className="mt-auto self-start" onClick={() => onLaunch({ ...DEFAULT_CONFIG, attack: a.id })}>
+                <Play size={14} fill="currentColor" /> Try it
               </Button>
-            </Card>
+            </div>
           ))}
         </div>
       </section>
 
-      <section>
-        <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-slate-200">General security framework</h2>
-          <Badge>Phase 4 · planned</Badge>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4">
+        <h2 className="text-xl font-extrabold">Coming soon</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
           {planned.map((c) => (
-            <Card key={c.id} className="p-5 opacity-80">
-              <div className="flex items-center gap-2">
-                <Lock size={14} className="text-slate-500" />
-                <div className="text-sm font-semibold text-slate-200">{c.name}</div>
-              </div>
-              <div className="mt-0.5 text-xs text-slate-500">{c.subtitle}</div>
-              <p className="mt-2 text-sm text-slate-400">{c.description}</p>
+            <Card key={c.id} className="grid gap-1.5 p-5">
+              <h3 className="text-lg font-extrabold">{c.name}</h3>
+              <p className="text-[15px] text-muted">{c.description}</p>
+              <span className="text-xs font-semibold uppercase tracking-[0.06em] text-muted/80">{c.technical}</span>
             </Card>
           ))}
         </div>
