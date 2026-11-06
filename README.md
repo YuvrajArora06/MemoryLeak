@@ -377,7 +377,82 @@ Describe what changed, how it was tested, and any integration requirements.
 
 **Do not push unfinished work directly to `main`.**
 
-## 12. Security Guidelines
+## 12. PayPal Sandbox Setup
+
+The PayPal client in `backend/paypal/` talks only to the PayPal sandbox, so it never moves real money. You need your own sandbox credentials to run it.
+
+### Step 1: Get Sandbox Credentials
+
+1. Log in at [developer.paypal.com](https://developer.paypal.com) with a PayPal account. A free personal account works.
+2. Open **Apps & Credentials** and make sure the toggle at the top is set to **Sandbox**, not **Live**.
+3. Click **Create App**, give it a name (for example `MemoryLeak`), choose the **Merchant** type and create it. You can use the existing **Default Application** instead.
+4. Open the app and copy its **Client ID** and **Secret**.
+
+### Step 2: Add Them to `.env`
+
+From the repository root:
+
+```bash
+cp .env.example .env
+```
+
+Then fill in `.env`:
+
+```text
+PAYPAL_CLIENT_ID=your-sandbox-client-id
+PAYPAL_CLIENT_SECRET=your-sandbox-secret
+```
+
+`.env` is git-ignored. Never commit it, and never share the secret in chats, issues or pull requests.
+
+### Step 3: Install Dependencies
+
+You need Python 3.9 or newer (tested with 3.9 and 3.12).
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Step 4: Run the Unit Tests
+
+These use a fake PayPal and don't need credentials or a network connection:
+
+```bash
+python -m pytest tests
+```
+
+### Step 5: Test the Sandbox Connection
+
+```bash
+python -m paypal.check_connection
+```
+
+It logs in, creates a $1.00 sandbox order and reads it back. A working setup prints:
+
+```text
+Using https://api-m.sandbox.paypal.com
+OK: got an access token
+OK: created order 51G164460D250793R (CREATED)
+OK: read the order back, PayPal recorded $1.00
+Sandbox connection works.
+```
+
+The order ID will be different each time. The order is never approved or captured, so no money moves, not even sandbox money.
+
+### Troubleshooting
+
+| Message | Fix |
+|---|---|
+| `Missing PAYPAL_CLIENT_ID...` | Make sure `.env` is in the repository root, not in `backend/`, and both values are filled in. |
+| `PayPal returned 401: Client Authentication failed` | The credentials are wrong or came from the **Live** tab. Copy them again with the toggle on **Sandbox**. |
+| `couldn't reach PayPal` | Check your internet connection, VPN or proxy. |
+
+When asking for help with a PayPal error, include the `debug_id` from the message, but never the secret.
+
+## 13. Security Guidelines
 
 Because MemoryLeak is a security-testing project, safe development practices are essential.
 
@@ -391,7 +466,7 @@ Because MemoryLeak is a security-testing project, safe development practices are
 - Keep all test transactions isolated from real funds.
 - Review pull requests before merging.
 
-## 13. Current Development Status
+## 14. Current Development Status
 
 **Status: Repository initialization / Early Development**
 
@@ -407,7 +482,7 @@ The following components are planned but should not be considered implemented un
 
 Development progress will be tracked through GitHub Issues and Pull Requests.
 
-## 14. Project Vision
+## 15. Project Vision
 
 MemoryLeak aims to become an open-source developer tool for evaluating the security of AI agents before they are deployed into sensitive environments.
 
