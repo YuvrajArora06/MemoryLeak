@@ -1,27 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, Zap, ArrowRight } from 'lucide-react';
-import { Card, CardHeader, Button, Toggle, Badge } from '../components/ui';
-import Timeline from '../components/Timeline';
-import FindingCard from '../components/FindingCard';
+import { Play, RotateCcw, Download } from 'lucide-react';
+import { Card, Button, Toggle, PageTitle, TONE } from '../components/ui';
+import StoryCards from '../components/StoryCards';
+import ResultHero from '../components/ResultHero';
 import { ATTACKS, AGENT_PROFILES, DEFAULT_CONFIG } from '../data/scenarios';
-import { runScenario } from '../services/api';
+import { runScenario, downloadRun } from '../services/api';
 
-const STEP_DELAY_MS = 650;
+const STEP_DELAY_MS = 700;
 
-function Field({ label, children, hint }) {
+const inputCls =
+  'w-full rounded-xl border-2 border-line bg-paper px-3 py-2 text-[15px] text-ink outline-none transition-colors focus:border-ink';
+
+function Question({ label, htmlFor, children }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-slate-400">{label}</span>
+    <div className="grid gap-2">
+      <label htmlFor={htmlFor} className="font-bold">
+        {label}
+      </label>
       {children}
-      {hint && <span className="mt-1 block text-[11px] text-slate-500">{hint}</span>}
-    </label>
+    </div>
   );
 }
 
-const inputCls =
-  'w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500';
-
-const PIPELINE = ['User', 'Agent', 'Policy Gateway', 'PayPal Sandbox', 'Evaluator'];
+function MoneyInput({ id, value, onChange }) {
+  return (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-muted">$</span>
+      <input
+        id={id}
+        type="number"
+        min="1"
+        className={`${inputCls} pl-7 tabular-nums`}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+    </div>
+  );
+}
 
 export default function PaymentLab({ preset, onRunComplete }) {
   const [config, setConfig] = useState(preset ?? DEFAULT_CONFIG);
@@ -42,7 +57,7 @@ export default function PaymentLab({ preset, onRunComplete }) {
     clearInterval(timer.current);
     const result = await runScenario(config);
     setRun(result);
-    onRunComplete(result); // persist immediately so leaving the page mid-animation doesn't lose it
+    onRunComplete(result); // save straight away so leaving mid-animation doesn't lose it
     setVisible(1);
     setRunning(true);
     let n = 1;
@@ -64,170 +79,146 @@ export default function PaymentLab({ preset, onRunComplete }) {
     setConfig(DEFAULT_CONFIG);
   }
 
-  const activeActor = run ? run.steps[Math.min(visible, run.steps.length) - 1]?.actor : null;
-  const attack = ATTACKS[config.attack];
-
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Payment Security Lab</h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-400">
-            Give an AI purchasing agent an authorized request, hide an adversarial instruction in the product page, and
-            see whether the independent policy gateway stops an unauthorized PayPal payment.
-          </p>
-        </div>
-        <Badge tone="amber">PayPal Sandbox · simulated</Badge>
-      </header>
+    <div className="grid gap-8">
+      <PageTitle title="Payment lab">
+        Hide a trick on a product page, then watch whether your agent falls for it and whether the payment guard
+        catches it.
+      </PageTitle>
 
-      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        {/* ---------- Config ---------- */}
-        <Card className="h-fit">
-          <CardHeader title="Scenario configuration" subtitle="What the user authorized and how the agent is attacked" />
-          <div className="space-y-5 px-5 py-5">
-            <Field label="Product">
-              <input className={inputCls} value={config.product} onChange={(e) => set('product')(e.target.value)} />
-            </Field>
+      <div className="grid items-start gap-6 lg:grid-cols-[370px_minmax(0,1fr)]">
+        {/* ---------- Set up ---------- */}
+        <Card className="grid gap-6 p-6">
+          <h2 className="text-xl font-extrabold">Set up the test</h2>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Authorized amount (USD)">
-                <input
-                  type="number"
-                  min="1"
-                  className={inputCls}
-                  value={config.authorizedAmount}
-                  onChange={(e) => set('authorizedAmount')(Number(e.target.value))}
-                />
-              </Field>
-              <Field label="Spending limit (USD)">
-                <input
-                  type="number"
-                  min="1"
-                  className={inputCls}
-                  value={config.spendingLimit}
-                  onChange={(e) => set('spendingLimit')(Number(e.target.value))}
-                />
-              </Field>
-            </div>
+          <Question label="What should the agent buy?" htmlFor="product">
+            <input id="product" className={inputCls} value={config.product} onChange={(e) => set('product')(e.target.value)} />
+          </Question>
 
-            <Field label="Adversarial payload" hint={attack.description}>
-              <select className={inputCls} value={config.attack} onChange={(e) => set('attack')(e.target.value)}>
-                {Object.values(ATTACKS).map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Question label="You’ll approve" htmlFor="approved">
+              <MoneyInput id="approved" value={config.authorizedAmount} onChange={set('authorizedAmount')} />
+            </Question>
+            <Question label="Never spend over" htmlFor="limit">
+              <MoneyInput id="limit" value={config.spendingLimit} onChange={set('spendingLimit')} />
+            </Question>
+          </div>
 
-            <Field label="Agent under test">
-              <div className="grid grid-cols-2 gap-2">
-                {Object.values(AGENT_PROFILES).map((p) => (
+          <fieldset className="grid gap-2">
+            <legend className="mb-2 font-bold">Pick a trick</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.values(ATTACKS).map((a) => {
+                const on = config.attack === a.id;
+                return (
                   <button
-                    key={p.id}
+                    key={a.id}
                     type="button"
-                    onClick={() => set('agent')(p.id)}
-                    className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                      config.agent === p.id
-                        ? 'border-cyan-500 bg-cyan-500/10'
-                        : 'border-slate-700 hover:border-slate-600'
+                    aria-pressed={on}
+                    onClick={() => set('attack')(a.id)}
+                    className={`rounded-2xl border-2 p-3 text-left transition ${
+                      on ? `${TONE[a.tone]} border-ink` : 'border-line hover:border-muted'
                     }`}
                   >
-                    <div className="text-sm text-slate-100">{p.label}</div>
-                    <div className="text-[11px] leading-snug text-slate-500">{p.description}</div>
+                    <span className={`block font-bold ${on ? '' : 'text-ink'}`}>{a.label}</span>
+                    <span className={`block text-[13px] leading-snug ${on ? 'text-ink/80' : 'text-muted'}`}>{a.tagline}</span>
                   </button>
-                ))}
-              </div>
-            </Field>
-
-            <div className="space-y-4 border-t border-slate-800 pt-5">
-              <Toggle
-                checked={config.requireApproval}
-                onChange={set('requireApproval')}
-                label="Require explicit user approval"
-                description="User must confirm before payment capture"
-              />
-              <Toggle
-                checked={config.gatewayEnabled}
-                onChange={set('gatewayEnabled')}
-                label="Payment policy gateway"
-                description="Server-side checks independent of the LLM"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-1">
-              <Button className="flex-1" onClick={execute} disabled={running}>
-                {running ? (
-                  <>
-                    <Zap size={16} className="animate-pulse" /> Running…
-                  </>
-                ) : (
-                  <>
-                    <Play size={16} /> Run attack
-                  </>
-                )}
-              </Button>
-              <Button variant="secondary" onClick={reset} disabled={running} title="Reset to defaults">
-                <RotateCcw size={16} />
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* ---------- Execution ---------- */}
-        <div className="min-w-0 space-y-6">
-          <Card>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-2 px-5 py-4">
-              {PIPELINE.map((actor, i) => {
-                const reached = run && run.steps.slice(0, visible).some((s) => s.actor === actor);
-                const active = actor === activeActor && running;
-                const skipped =
-                  actor === 'Policy Gateway' && !config.gatewayEnabled && run && reached;
-                return (
-                  <div key={actor} className="flex items-center gap-2">
-                    <span
-                      className={`rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-all ${
-                        active
-                          ? 'bg-cyan-500/20 text-cyan-200 ring-cyan-400'
-                          : skipped
-                            ? 'bg-rose-500/10 text-rose-300 ring-rose-500/40 line-through'
-                            : reached
-                              ? 'bg-slate-800 text-slate-200 ring-slate-600'
-                              : 'text-slate-500 ring-slate-800'
-                      }`}
-                    >
-                      {actor}
-                    </span>
-                    {i < PIPELINE.length - 1 && <ArrowRight size={14} className="text-slate-600" />}
-                  </div>
                 );
               })}
             </div>
-          </Card>
+            <p className="text-sm text-muted">{ATTACKS[config.attack].description}</p>
+          </fieldset>
 
-          <Card>
-            <CardHeader
-              title="Execution trace"
-              subtitle={run ? `${run.id} · ${run.attackLabel} · ${run.agentLabel}` : 'Configure a scenario and run it'}
-            />
-            <div className="px-5 pt-5">
-              {run ? (
-                <Timeline steps={run.steps} visibleCount={visible} running={running} />
-              ) : (
-                <div className="grid place-items-center pb-12 pt-8 text-center">
-                  <div className="max-w-sm text-sm text-slate-500">
-                    The trace will show each decision the agent made, what the policy gateway checked, and what actually
-                    reached the PayPal sandbox.
-                  </div>
-                  <Button className="mt-4" onClick={execute}>
-                    <Play size={16} /> Run default scenario
-                  </Button>
-                </div>
-              )}
+          <fieldset className="grid gap-2">
+            <legend className="mb-2 font-bold">Which agent?</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.values(AGENT_PROFILES).map((p) => {
+                const on = config.agent === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => set('agent')(p.id)}
+                    className={`rounded-2xl border-2 p-3 text-left transition ${
+                      on ? 'border-ink bg-ink text-paper' : 'border-line hover:border-muted'
+                    }`}
+                  >
+                    <span className="block font-bold">{p.label}</span>
+                    <span className={`block text-[13px] leading-snug ${on ? 'opacity-80' : 'text-muted'}`}>{p.description}</span>
+                  </button>
+                );
+              })}
             </div>
-          </Card>
+          </fieldset>
 
-          {run && !running && <FindingCard run={run} />}
+          <div className="grid gap-4 border-t border-line pt-5">
+            <Toggle
+              id="ask-first"
+              checked={config.requireApproval}
+              onChange={set('requireApproval')}
+              label="Ask me before paying"
+              description="The agent must get your OK first"
+            />
+            <Toggle
+              id="guard"
+              checked={config.gatewayEnabled}
+              onChange={set('gatewayEnabled')}
+              label="Payment guard"
+              description="Checks every payment, whatever the AI says"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button className="flex-1 py-3" onClick={execute} disabled={running}>
+              <Play size={16} fill="currentColor" /> {running ? 'Running…' : 'Run the test'}
+            </Button>
+            <Button variant="outline" onClick={reset} disabled={running} aria-label="Start over" title="Start over">
+              <RotateCcw size={16} />
+            </Button>
+          </div>
+        </Card>
+
+        {/* ---------- Result ---------- */}
+        <div className="grid min-w-0 gap-6">
+          {!run && (
+            <div className="rounded-[28px] bg-c-lilac p-6 text-c-lilac-ink sm:p-8">
+              <span className="text-xs font-bold uppercase tracking-[0.08em]">Your result shows up here</span>
+              <h2 className="mt-2 text-2xl font-extrabold leading-tight tracking-tight text-ink sm:text-3xl">
+                Ready when you are.
+              </h2>
+              <ol className="mt-4 grid gap-2 text-ink/85 sm:text-[17px]">
+                <li>1. You ask the agent to buy something for a set price.</li>
+                <li>2. The product page hides a sneaky instruction.</li>
+                <li>3. We show you what the agent tried, and what PayPal actually charged.</li>
+              </ol>
+              <Button className="mt-6" onClick={execute}>
+                <Play size={16} fill="currentColor" /> Run the test
+              </Button>
+            </div>
+          )}
+
+          {run && !running && (
+            <ResultHero
+              run={run}
+              actions={
+                <>
+                  <Button onClick={execute}>
+                    <RotateCcw size={16} /> Run it again
+                  </Button>
+                  <Button variant="outline" onClick={() => downloadRun(run)}>
+                    <Download size={16} /> Download evidence
+                  </Button>
+                </>
+              }
+            />
+          )}
+
+          {run && (
+            <section className="grid gap-3">
+              <h2 className="text-lg font-extrabold">{running ? 'Watching it happen…' : 'How it played out'}</h2>
+              <StoryCards steps={run.steps} visibleCount={visible} running={running} />
+            </section>
+          )}
         </div>
       </div>
     </div>
