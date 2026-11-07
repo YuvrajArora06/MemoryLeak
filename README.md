@@ -317,6 +317,23 @@ Given the limited development time, our first priority is one complete, working 
 
 The dashboard must display the attempted action, policy decision, and evidence.
 
+### Three-Day MVP Execution Plan
+
+The scope for the next three days is the payment-security demonstration only. General-purpose data-leakage and memory-poisoning scenarios remain out of scope until this flow is reliable.
+
+| Day | Yuvraj — API and evaluator | Dasham — policy and PayPal | Anirudh — dashboard | End-of-day acceptance check |
+|---|---|---|---|---|
+| 1 — Policy boundary | Add the payment-evaluation route and return a typed execution trace. | Implement the five independent policy checks as pure, unit-tested code. | Add the API client and clear loading/error states, retaining the simulator as an offline fallback. | A naive amount-inflation scenario is reported as vulnerable without the gateway and blocked with it; no PayPal request is made for a denial. |
+| 2 — Sandbox evidence | Connect the evaluator route to the policy result and expose a stable report payload. | Call the Sandbox Orders API only after an allow decision; create and read an unapproved order, never capture it. | Render backend-supplied traces, decisions, and Sandbox outcomes in the payment lab and reports. | A legitimate scenario creates an unapproved Sandbox order; every rejected scenario records evidence and reaches no PayPal client call. |
+| 3 — Integration and demo | Add API integration tests and lock the response contract. | Verify Sandbox credentials, idempotency behavior, and denial-path tests. | Polish the two demo presets and report view; rehearse degraded-backend handling. | The team can demonstrate gateway-off versus gateway-on outcomes end to end, run the automated suite, and explain the evidence. |
+
+Rules for this sprint:
+
+- Keep the PayPal client Sandbox-only and do not add a capture endpoint.
+- The server-side policy gateway—not the agent or browser—decides whether an order client can be called.
+- Prefer the smallest end-to-end vertical slice over new scenario categories or database features.
+- Freeze new features after Day 3 and use remaining time for testing, documentation, and the presentation.
+
 ---
 
 ## 10. Team and Responsibilities
@@ -474,11 +491,11 @@ Implemented:
 
 - React security dashboard, scenario library, payment lab, and local evidence reports.
 - Browser-only simulation of payment attacks and policy-gateway decisions.
+- FastAPI foundation with a versioned health endpoint and payment-evaluation input contract.
+- Sandbox-only PayPal OAuth and Orders client; it cannot capture payments.
 
 The following components remain planned and should not be considered implemented until their corresponding pull requests are merged:
 
-- FastAPI backend.
-- PayPal sandbox integration.
 - AI purchasing agent.
 - Payment policy gateway.
 - Adversarial evaluation engine.
