@@ -468,12 +468,16 @@ Because MemoryLeak is a security-testing project, safe development practices are
 
 ## 14. Current Development Status
 
-**Status: Repository initialization / Early Development**
+**Status: Frontend prototype complete; backend implementation in progress**
 
-The following components are planned but should not be considered implemented until their corresponding pull requests are merged:
+Implemented:
+
+- React security dashboard, scenario library, payment lab, and local evidence reports.
+- Browser-only simulation of payment attacks and policy-gateway decisions.
+
+The following components remain planned and should not be considered implemented until their corresponding pull requests are merged:
 
 - FastAPI backend.
-- React frontend.
 - PayPal sandbox integration.
 - AI purchasing agent.
 - Payment policy gateway.
