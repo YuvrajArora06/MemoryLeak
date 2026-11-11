@@ -493,11 +493,11 @@ Implemented:
 - Browser-only simulation of payment attacks and policy-gateway decisions.
 - FastAPI foundation with a versioned health endpoint and payment-evaluation input contract.
 - Sandbox-only PayPal OAuth and Orders client; it cannot capture payments.
+- Payment policy gateway with five independent checks, and an executor that creates a Sandbox order only after an allow decision.
 
 The following components remain planned and should not be considered implemented until their corresponding pull requests are merged:
 
 - AI purchasing agent.
-- Payment policy gateway.
 - Adversarial evaluation engine.
 - Security reporting dashboard.
 
