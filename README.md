@@ -447,17 +447,28 @@ python -m pytest tests
 python -m paypal.check_connection
 ```
 
-It logs in, creates a $1.00 sandbox order and reads it back. A working setup prints:
+It logs in, creates a $1.00 sandbox order, reads it back, and resends the same request to confirm PayPal returns the original order instead of a duplicate. A working setup prints:
 
 ```text
 Using https://api-m.sandbox.paypal.com
 OK: got an access token
 OK: created order 51G164460D250793R (CREATED)
 OK: read the order back, PayPal recorded $1.00
+OK: retrying with the same request ID returned the same order
 Sandbox connection works.
 ```
 
 The order ID will be different each time. The order is never approved or captured, so no money moves, not even sandbox money.
+
+### Step 6 (Optional): Run the Live Sandbox Tests
+
+These run the payment policy gateway against the real sandbox: legitimate payments create an order, the three payment-lab attacks are denied before reaching PayPal, and retries don't create duplicates. They're skipped unless you opt in:
+
+```bash
+PAYPAL_LIVE_TESTS=1 python -m pytest tests/test_paypal_sandbox_live.py
+```
+
+Each run leaves a few unapproved sandbox orders and takes about 15 seconds.
 
 ### Troubleshooting
 
@@ -493,11 +504,11 @@ Implemented:
 - Browser-only simulation of payment attacks and policy-gateway decisions.
 - FastAPI foundation with a versioned health endpoint and payment-evaluation input contract.
 - Sandbox-only PayPal OAuth and Orders client; it cannot capture payments.
+- Payment policy gateway with five independent checks, and an executor that creates a Sandbox order only after an allow decision.
 
 The following components remain planned and should not be considered implemented until their corresponding pull requests are merged:
 
 - AI purchasing agent.
-- Payment policy gateway.
 - Adversarial evaluation engine.
 - Security reporting dashboard.
 
