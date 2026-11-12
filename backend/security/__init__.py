@@ -1,1 +1,1 @@
-"""Security controls that sit between AI agents and real-world actions."""
+"""Independent security controls for MemoryLeak evaluations."""

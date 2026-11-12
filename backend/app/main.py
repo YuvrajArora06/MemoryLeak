@@ -7,7 +7,8 @@ Run locally from ``backend/`` with:
 
 from fastapi import FastAPI
 
-from .schemas import HealthResponse
+from .evaluator import evaluate_payment
+from .schemas import HealthResponse, PaymentEvaluationRequest, PaymentEvaluationResponse
 
 APP_VERSION = "0.1.0"
 
@@ -27,3 +28,14 @@ def health_check() -> HealthResponse:
     """
 
     return HealthResponse(status="ok", service="memoryleak-api", version=APP_VERSION)
+
+
+@app.post(
+    "/api/v1/evaluations/payment",
+    response_model=PaymentEvaluationResponse,
+    tags=["evaluations"],
+)
+def evaluate_payment_scenario(request: PaymentEvaluationRequest) -> PaymentEvaluationResponse:
+    """Evaluate a payment proposal without performing a PayPal side effect."""
+
+    return evaluate_payment(request)
