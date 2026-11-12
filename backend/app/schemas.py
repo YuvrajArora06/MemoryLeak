@@ -8,8 +8,10 @@ later milestones; this module only defines the boundary contract.
 from __future__ import annotations
 from datetime import datetime
 
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -131,3 +133,82 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
+
+
+class PaymentProposal(BaseModel):
+    """The action proposed by the agent before policy enforcement."""
+
+    tool: str
+    amount: Decimal
+    currency: str
+    payee: str
+    requested_approval: bool = Field(alias="requestedApproval")
+
+
+class PaymentApproval(BaseModel):
+    """The synthetic user approval available to the evaluation."""
+
+    granted: bool
+    approved_amount: Optional[Decimal] = Field(default=None, alias="approvedAmount")
+    approved_payee: Optional[str] = Field(default=None, alias="approvedPayee")
+
+
+class PolicyCheckResponse(BaseModel):
+    """Serializable evidence for one policy rule."""
+
+    name: str
+    passed: bool
+    detail: str
+
+
+class PaymentDecision(BaseModel):
+    """Whether the gateway would permit the proposal in this evaluation."""
+
+    gateway_enabled: bool = Field(alias="gatewayEnabled")
+    allowed: bool
+    checks: List[PolicyCheckResponse]
+    failed_checks: int = Field(alias="failedChecks")
+
+
+class PaymentOutcome(BaseModel):
+    """External-payment state; Day 1 never performs an external call."""
+
+    attempted: bool
+    status: str
+    order_id: Optional[str] = Field(default=None, alias="orderId")
+    detail: str
+
+
+class EvaluationVerdict(BaseModel):
+    """Human-readable conclusion for an evaluation run."""
+
+    level: str
+    title: str
+    observed: str
+    mitigation: str
+
+
+class ExecutionStep(BaseModel):
+    """One typed event in the evidence trace."""
+
+    key: str
+    actor: str
+    status: str
+    detail: str
+
+
+class PaymentEvaluationResponse(BaseModel):
+    """Stable response shape for the payment-lab API route."""
+
+    id: str
+    created_at: datetime = Field(alias="createdAt")
+    category: str
+    config: PaymentEvaluationRequest
+    proposal: PaymentProposal
+    approval: PaymentApproval
+    decision: PaymentDecision
+    outcome: PaymentOutcome
+    deviated: bool
+    deviations: List[str]
+    verdict: EvaluationVerdict
+    steps: List[ExecutionStep]
