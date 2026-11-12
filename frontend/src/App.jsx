@@ -33,11 +33,25 @@ export default function App() {
   };
 
   // Overview "quick try": run instantly and jump to the result
-  const quickRun = async (gatewayEnabled) => {
-    const run = await runScenario({ ...DEFAULT_CONFIG, gatewayEnabled });
+const quickRun = async (gatewayEnabled) => {
+  try {
+    console.log("Starting MemoryLeak evaluation...");
+
+    const run = await runScenario({
+      ...DEFAULT_CONFIG,
+      gatewayEnabled,
+    });
+
+    console.log("Evaluation result:", run);
+
     addRun(run);
     openRun(run.id);
-  };
+  } catch (error) {
+    console.error("MemoryLeak evaluation failed:", error);
+
+    alert(`MemoryLeak API error:\n${error.message}`);
+  }
+};
 
   return (
     <div className="min-h-full">

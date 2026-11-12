@@ -6,6 +6,7 @@ Run locally from ``backend/`` with:
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .evaluator import evaluate_payment
 from .schemas import HealthResponse, PaymentEvaluationRequest, PaymentEvaluationResponse
@@ -16,6 +17,16 @@ app = FastAPI(
     title="MemoryLeak API",
     description="Security evaluation APIs for AI agents.",
     version=APP_VERSION,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://memoryleak-alpha.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
