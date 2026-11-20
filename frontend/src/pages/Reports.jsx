@@ -39,9 +39,14 @@ export default function Reports({ runs, selectedId, onSelect, onRerun, onClear }
     return (
       <div className="grid gap-8">
         <PageTitle title="History" />
-        <div className="rounded-[28px] bg-c-sky p-8 text-c-sky-ink">
+        <div className="relative overflow-hidden rounded-[28px] bg-c-sky p-8 text-c-sky-ink">
+          <span className="sticker animate-float pointer-events-none absolute right-5 top-5 hidden rotate-[-4deg] rounded-xl border-2 border-ink bg-card px-3 py-1 text-xs font-extrabold text-ink shadow-[3px_3px_0_0_var(--color-ink)] sm:block">
+            📂 empty for now
+          </span>
           <h2 className="text-2xl font-extrabold text-ink">Nothing here yet.</h2>
-          <p className="mt-2 text-ink/85">Every test you run in the payment lab is saved here, with the evidence.</p>
+          <p className="mt-2 text-ink/85">
+            Every test you run in the payment lab is saved here, <span className="mark">with the evidence</span>.
+          </p>
         </div>
       </div>
     );
@@ -75,7 +80,8 @@ export default function Reports({ runs, selectedId, onSelect, onRerun, onClear }
           )
         }
       >
-        Every test you’ve run, with what was expected, what happened, and how to fix it.
+        Every test you’ve run, with what was expected, what happened, and{' '}
+        <span className="mark">how to fix it</span>.
       </PageTitle>
 
       <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">

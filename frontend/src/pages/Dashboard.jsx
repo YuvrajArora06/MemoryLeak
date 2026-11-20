@@ -9,12 +9,16 @@ export default function Dashboard({ runs, onNavigate, onOpenRun, onQuickRun }) {
   return (
     <div className="grid gap-10">
       <section className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-        <div className="flex flex-col rounded-[28px] bg-c-butter p-6 text-c-butter-ink sm:p-8">
-          <span className="text-xs font-bold uppercase tracking-[0.08em]">AI agent security lab</span>
-          <h1 className="mt-2 text-3xl font-extrabold leading-[1.1] tracking-tight text-ink sm:text-[40px]">
-            Can your AI agent be talked into spending money it shouldn’t?
+        <div className="relative flex flex-col overflow-hidden rounded-[28px] bg-c-butter p-6 text-c-butter-ink sm:p-8">
+          {/* floating sticker */}
+          <span className="sticker animate-float pointer-events-none absolute right-5 top-5 hidden rotate-[-4deg] rounded-xl border-2 border-ink bg-card px-3 py-1 text-xs font-extrabold text-ink shadow-[3px_3px_0_0_var(--color-ink)] sm:block">
+            🧪 test money only
+          </span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em]">AI agent security lab</span>
+          <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-tight text-ink sm:text-[46px]">
+            Can your AI agent be <span className="mark">talked into</span> spending money it shouldn’t?
           </h1>
-          <p className="mt-3 max-w-[50ch] text-ink/85 sm:text-[17px]">
+          <p className="mt-4 max-w-[50ch] text-ink/85 sm:text-[17px]">
             MemoryLeak hides tricks where your agent will find them, then shows you exactly what it did and what got
             charged. Everything runs on test money.
           </p>
@@ -28,7 +32,7 @@ export default function Dashboard({ runs, onNavigate, onOpenRun, onQuickRun }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="stagger grid grid-cols-2 gap-3">
           <StatTile tone="sky" label="Tests run" value={runs.length} />
           <StatTile tone="rose" label="Money got out" value={count('vulnerable')} hint="Tricked, and paid" />
           <StatTile tone="butter" label="Caught in time" value={count('mitigated')} hint="Tricked, but blocked" />
@@ -75,10 +79,10 @@ export default function Dashboard({ runs, onNavigate, onOpenRun, onQuickRun }) {
 
       <section className="grid gap-4">
         <h2 className="text-xl font-extrabold">What MemoryLeak checks</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CATEGORIES.map((c) =>
             c.status === 'active' ? (
-              <div key={c.id} className="flex flex-col gap-2 rounded-[20px] bg-c-mint p-5 text-c-mint-ink">
+              <div key={c.id} className="lift flex flex-col gap-2 rounded-[20px] bg-c-mint p-5 text-c-mint-ink">
                 <Chip tone="mint" className="self-start bg-card/75">Ready</Chip>
                 <h3 className="text-lg font-extrabold text-ink">{c.name}</h3>
                 <p className="text-[15px] text-ink/85">{c.description}</p>
@@ -87,7 +91,7 @@ export default function Dashboard({ runs, onNavigate, onOpenRun, onQuickRun }) {
                 </Button>
               </div>
             ) : (
-              <Card key={c.id} className="flex flex-col gap-2 p-5">
+              <Card key={c.id} className="lift flex flex-col gap-2 p-5">
                 <Chip tone="lilac" className="self-start">Coming soon</Chip>
                 <h3 className="text-lg font-extrabold">{c.name}</h3>
                 <p className="text-[15px] text-muted">{c.description}</p>

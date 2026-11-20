@@ -18,7 +18,7 @@ export default function ResultHero({ run, actions }) {
         {actions && <div className="mt-6 flex flex-wrap gap-2.5">{actions}</div>}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatTile tone="sky" label="You approved" value={money(config.authorizedAmount)} />
         <StatTile
           tone={deviated ? 'peach' : 'sky'}

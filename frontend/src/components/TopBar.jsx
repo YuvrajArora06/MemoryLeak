@@ -34,11 +34,11 @@ export default function TopBar({ page, onNavigate, runCount }) {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-4 sm:px-8">
-        <button onClick={() => onNavigate('dashboard')} className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-c-sky text-c-sky-ink">
+        <button onClick={() => onNavigate('dashboard')} className="group flex items-center gap-2">
+          <span className="grid h-8 w-8 rotate-[-6deg] place-items-center rounded-[10px] border-2 border-ink bg-c-sky text-c-sky-ink transition-transform group-hover:rotate-0">
             <Droplet size={17} strokeWidth={2.5} />
           </span>
-          <span className="text-xl font-extrabold tracking-tight">MemoryLeak</span>
+          <span className="font-display text-xl font-extrabold tracking-tight">MemoryLeak</span>
         </button>
 
         <nav className="-mx-1 flex max-w-full gap-1 overflow-x-auto px-1 order-3 w-full sm:order-none sm:w-auto">
@@ -67,7 +67,10 @@ export default function TopBar({ page, onNavigate, runCount }) {
         </nav>
 
         <span className="ml-auto flex items-center gap-2 text-sm text-muted">
-          <span className="h-2 w-2 rounded-full bg-c-butter-ink" />
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-c-butter-ink opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-c-butter-ink" />
+          </span>
           Sandbox mode · no real money
         </span>
         <button

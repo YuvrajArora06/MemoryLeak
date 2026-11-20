@@ -33,18 +33,24 @@ export function VerdictChip({ level }) {
 }
 
 export function Card({ className = '', children }) {
-  return <div className={`rounded-3xl border border-line bg-card ${className}`}>{children}</div>;
+  return (
+    <div
+      className={`rounded-3xl border border-line bg-card shadow-[0_10px_30px_-18px_rgba(36,33,43,0.35)] ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function Button({ variant = 'primary', className = '', children, ...props }) {
   const styles = {
-    primary: 'bg-ink text-paper hover:opacity-90 border-2 border-ink',
+    primary: 'bg-ink text-paper border-2 border-ink shadow-[0_6px_0_-2px_rgba(36,33,43,0.25)]',
     outline: 'border-2 border-ink text-ink hover:bg-ink/5',
     ghost: 'border-2 border-transparent text-muted hover:text-ink hover:bg-ink/5',
   }[variant];
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[15px] font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${styles} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[15px] font-bold transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${styles} ${className}`}
       {...props}
     >
       {children}
@@ -77,9 +83,9 @@ export function Toggle({ id, checked, onChange, label, description }) {
 
 export function StatTile({ tone, label, value, hint }) {
   return (
-    <div className={`flex flex-col rounded-[20px] p-4 sm:p-5 ${TONE[tone]}`}>
+    <div className={`lift flex flex-col rounded-[20px] p-4 sm:p-5 ${TONE[tone]}`}>
       <span className="text-sm font-semibold">{label}</span>
-      <span className="mt-0.5 text-3xl font-extrabold tracking-tight tabular-nums">{value}</span>
+      <span className="mt-0.5 font-display text-3xl font-extrabold tracking-tight tabular-nums">{value}</span>
       {hint && <span className="mt-1 text-xs font-medium opacity-80">{hint}</span>}
     </div>
   );
