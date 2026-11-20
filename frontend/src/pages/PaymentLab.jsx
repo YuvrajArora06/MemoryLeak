@@ -82,8 +82,8 @@ export default function PaymentLab({ preset, onRunComplete }) {
   return (
     <div className="grid gap-8">
       <PageTitle title="Payment lab">
-        Hide a trick on a product page, then watch whether your agent falls for it and whether the payment guard
-        catches it.
+        Hide a trick on a product page, then <span className="mark">watch it happen</span> — whether your agent falls
+        for it, and whether the payment guard catches it.
       </PageTitle>
 
       <div className="grid items-start gap-6 lg:grid-cols-[370px_minmax(0,1fr)]">
@@ -181,8 +181,11 @@ export default function PaymentLab({ preset, onRunComplete }) {
         {/* ---------- Result ---------- */}
         <div className="grid min-w-0 gap-6">
           {!run && (
-            <div className="rounded-[28px] bg-c-lilac p-6 text-c-lilac-ink sm:p-8">
-              <span className="text-xs font-bold uppercase tracking-[0.08em]">Your result shows up here</span>
+            <div className="relative overflow-hidden rounded-[28px] bg-c-lilac p-6 text-c-lilac-ink sm:p-8">
+              <span className="sticker animate-float pointer-events-none absolute right-5 top-5 hidden rotate-[-4deg] rounded-xl border-2 border-ink bg-card px-3 py-1 text-xs font-extrabold text-ink shadow-[3px_3px_0_0_var(--color-ink)] sm:block">
+                ✨ nothing run yet
+              </span>
+              <span className="text-xs font-bold uppercase tracking-[0.12em]">Your result shows up here</span>
               <h2 className="mt-2 text-2xl font-extrabold leading-tight tracking-tight text-ink sm:text-3xl">
                 Ready when you are.
               </h2>

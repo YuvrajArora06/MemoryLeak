@@ -6,7 +6,7 @@ export default function StoryCards({ steps, visibleCount = steps.length, running
   return (
     <ol className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,190px),1fr))] gap-3">
       {steps.slice(0, visibleCount).map((step, i) => (
-        <li key={step.key} className={`animate-pop-in flex min-w-0 flex-col gap-2.5 rounded-[20px] p-4 ${TONE[step.tone]}`}>
+        <li key={step.key} className={`lift animate-pop-in flex min-w-0 flex-col gap-2.5 rounded-[20px] p-4 ${TONE[step.tone]}`}>
           <div className="flex items-center gap-2 font-bold">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-card/70 text-[13px] font-extrabold">
               {i + 1}
