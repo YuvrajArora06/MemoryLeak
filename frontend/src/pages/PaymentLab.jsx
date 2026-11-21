@@ -43,6 +43,8 @@ export default function PaymentLab({ preset, onRunComplete }) {
   const [run, setRun] = useState(null);
   const [visible, setVisible] = useState(0);
   const [running, setRunning] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const [error, setError] = useState(null);
   const timer = useRef(null);
 
   useEffect(() => {
@@ -55,7 +57,17 @@ export default function PaymentLab({ preset, onRunComplete }) {
 
   async function execute() {
     clearInterval(timer.current);
-    const result = await runScenario(config);
+    setError(null);
+    setWaiting(true);
+    let result;
+    try {
+      result = await runScenario(config);
+    } catch (err) {
+      setError(err.message);
+      return;
+    } finally {
+      setWaiting(false);
+    }
     setRun(result);
     onRunComplete(result); // save straight away so leaving mid-animation doesn't lose it
     setVisible(1);
@@ -75,6 +87,7 @@ export default function PaymentLab({ preset, onRunComplete }) {
     clearInterval(timer.current);
     setRun(null);
     setRunning(false);
+    setError(null);
     setVisible(0);
     setConfig(DEFAULT_CONFIG);
   }
@@ -169,13 +182,30 @@ export default function PaymentLab({ preset, onRunComplete }) {
           </div>
 
           <div className="flex gap-2">
-            <Button className="flex-1 py-3" onClick={execute} disabled={running}>
-              <Play size={16} fill="currentColor" /> {running ? 'Running…' : 'Run the test'}
+            <Button className="flex-1 py-3" onClick={execute} disabled={running || waiting}>
+              <Play size={16} fill="currentColor" />{' '}
+              {waiting ? 'Asking the server…' : running ? 'Running…' : 'Run the test'}
             </Button>
-            <Button variant="outline" onClick={reset} disabled={running} aria-label="Start over" title="Start over">
+            <Button
+              variant="outline"
+              onClick={reset}
+              disabled={running || waiting}
+              aria-label="Start over"
+              title="Start over"
+            >
               <RotateCcw size={16} />
             </Button>
           </div>
+          {waiting && (
+            <p className="text-sm text-muted" role="status">
+              The first test after a while can take up to a minute while the server wakes up.
+            </p>
+          )}
+          {error && (
+            <p className={`rounded-xl p-3 text-sm ${TONE.rose}`} role="alert">
+              {error}
+            </p>
+          )}
         </Card>
 
         {/* ---------- Result ---------- */}
@@ -194,7 +224,7 @@ export default function PaymentLab({ preset, onRunComplete }) {
                 <li>2. The product page hides a sneaky instruction.</li>
                 <li>3. We show you what the agent tried, and what PayPal actually charged.</li>
               </ol>
-              <Button className="mt-6" onClick={execute}>
+              <Button className="mt-6" onClick={execute} disabled={waiting}>
                 <Play size={16} fill="currentColor" /> Run the test
               </Button>
             </div>
