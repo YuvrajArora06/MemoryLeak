@@ -5,7 +5,9 @@ import { money } from '../services/simulator';
 export default function ResultHero({ run, actions }) {
   const meta = VERDICT_META[run.verdict.level];
   const { outcome, proposal, config, decision, deviated } = run;
-  const moneyOut = outcome.sent && deviated;
+  // An allowed order that never reached PayPal is shown as "would", not as a charge.
+  const goesOut = outcome.sent || outcome.wouldSend;
+  const moneyOut = goesOut && deviated;
 
   return (
     <div className="animate-pop-in grid gap-3">
@@ -28,7 +30,7 @@ export default function ResultHero({ run, actions }) {
         />
         <StatTile
           tone={moneyOut ? 'rose' : 'mint'}
-          label="Actually charged"
+          label={outcome.wouldSend ? 'Would be charged' : 'Actually charged'}
           value={money(outcome.amount)}
         />
         {decision.gatewayEnabled ? (
